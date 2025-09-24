@@ -1,0 +1,243 @@
+%
+% Demo Database ER Diagram
+%
+
+\documentclass[russian,parskip=half,fontsize=11pt,open=any,headings=normal,paper=A5,pagesize,landscape]{scrbook}
+\usepackage[inner=0mm,outer=0mm,top=0mm,bottom=0mm]{geometry}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english,main=russian]{babel}
+
+\usepackage[T1]{fontenc}
+\usepackage{PTSansCaption}
+\usepackage[scaled=1.00]{PTMono}
+\usepackage{PTSerifCaption}
+\renewcommand\familydefault{\sfdefault} 
+
+\usepackage{array}
+\renewcommand{\arraystretch}{1.1}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usetikzlibrary{shapes.multipart}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shadows}
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.pathreplacing,calc}
+\usetikzlibrary{decorations.text}
+\usetikzlibrary{fit}
+\usetikzlibrary{backgrounds,scopes}
+\usetikzlibrary{er}
+
+\newdimen\unit
+\unit=1.0pt
+\newdimen\halflw
+\halflw=.5\pgflinewidth
+\pgfarrowsdeclare{crow's foot}{crow's foot}
+{
+    \pgfarrowsleftextend{+-\halflw}%
+    \pgfarrowsrightextend{+\halflw}%
+}
+{
+    \pgfsetdash{}{+0pt}%
+    \pgfsetmiterjoin%
+    \pgfpathmoveto{\pgfqpoint{0pt}{-5\unit}}%
+    \pgfpathlineto{\pgfqpoint{-7\unit}{0pt}}%
+    \pgfpathlineto{\pgfqpoint{0pt}{5\unit}}%
+    \pgfusepathqstroke%
+}
+\pgfarrowsdeclare{crow's foot uid}{crow's foot uid}
+{
+    \pgfarrowsleftextend{+-\halflw}%
+    \pgfarrowsrightextend{+\halflw}%
+}
+{
+    \pgfsetdash{}{+0pt}%
+    \pgfsetmiterjoin%
+    \pgfpathmoveto{\pgfqpoint{0pt}{-5\unit}}%
+    \pgfpathlineto{\pgfqpoint{-7\unit}{0pt}}%
+    \pgfpathlineto{\pgfqpoint{0pt}{5\unit}}%
+    \pgfpathmoveto{\pgfqpoint{0\unit}{0\unit}}%
+    \pgfpathmoveto{\pgfqpoint{-7\unit}{-6\unit}}% 
+    \pgfpathlineto{\pgfqpoint{-7\unit}{-6\unit}}%  
+    \pgfpathlineto{\pgfqpoint{-7\unit}{6\unit}}% 
+    \pgfusepathqstroke%
+}
+\pgfarrowsdeclare{one}{one}
+{
+    \pgfarrowsleftextend{+-\halflw}%
+    \pgfarrowsrightextend{+\halflw}%
+}
+{
+    \pgfsetdash{}{+0pt}%
+    \pgfsetmiterjoin%
+    \pgfusepathqstroke%
+}
+\pgfarrowsdeclare{one uid}{one uid}
+{
+    \pgfarrowsleftextend{+-\halflw}%
+    \pgfarrowsrightextend{+\halflw}%
+}
+{
+    \pgfsetdash{}{+0pt}%
+    \pgfsetmiterjoin%
+    \pgfpathmoveto{\pgfqpoint{0\unit}{0\unit}}%
+    \pgfpathmoveto{\pgfqpoint{-7\unit}{-6\unit}}% 
+    \pgfpathlineto{\pgfqpoint{-7\unit}{-6\unit}}%  
+    \pgfpathlineto{\pgfqpoint{-7\unit}{6\unit}}% 
+    \pgfusepathqstroke%
+}
+
+\tikzset{%
+    pics/table/.style n args={4}{code={%
+            \node[draw,
+            rectangle split,
+            rectangle split parts=2,
+            rectangle split part fill={black!20,white},
+            font=\sffamily\footnotesize,
+            align=center
+            ] (#1)
+            {\textbf{#2}\strut\\
+            #3\strut \nodepart{second}
+                \setlength{\tabcolsep}{2pt}
+                \begin{tabular}{l l}
+                    #4
+                \end{tabular}
+            };%
+    }},
+    straight to/.style={
+        to path={(\tikztostart) -- (\tikztotarget)}
+    },
+    one to one/.style={
+        one-one, straight to
+    },
+    one to many/.style={
+        one-crow's foot, straight to,
+    },
+    many to one/.style={
+        crow's foot-one, straight to
+    },
+    many to many/.style={
+        crow's foot-crow's foot, straight to
+    },
+    optional one to many/.style={
+      decoration={show path construction,
+        lineto code={
+          \draw [dash pattern=on 3pt off 3pt,one-] (\tikzinputsegmentfirst) --
+             ($(\tikzinputsegmentfirst)!0.5!(\tikzinputsegmentlast)$);
+          \draw [solid,-crow's foot] ($(\tikzinputsegmentfirst)!0.5!(\tikzinputsegmentlast)$)
+            -- (\tikzinputsegmentlast);
+        }
+      }, decorate
+    },
+    optional one to one/.style={
+      decoration={show path construction,
+        lineto code={
+          \draw [dash pattern=on 3pt off 3pt,one-] (\tikzinputsegmentfirst) --
+             ($(\tikzinputsegmentfirst)!0.5!(\tikzinputsegmentlast)$);
+          \draw [solid,-one] ($(\tikzinputsegmentfirst)!0.5!(\tikzinputsegmentlast)$)
+            -- (\tikzinputsegmentlast);
+        }
+      }, decorate
+    }
+}
+
+\begin{document}
+\centering
+    \begin{tikzpicture}
+      \matrix[ampersand replacement=\&,column sep=5em,row sep=3ex]
+      {
+        \pic {table={bookings}{Bookings}{Бронирования}{%
+                \#      & book\_ref \\
+                $\ast$  & book\_date \\     
+                $\ast$  & total\_amount \\
+        }}; \& \&
+        \pic {table={routes}{Routes}{Маршруты}{%
+                \#      & route\_no \\
+                \#      & validity \\
+                $\ast$  & departure\_airport \\
+                $\ast$  & arrival\_airport \\
+                $\ast$  & airplane\_code \\
+                $\ast$  & days\_of\_week \\
+                $\ast$  & scheduled\_time \\
+                $\ast$  & duration \\
+        }}; \&
+        \pic {table={airports-data}{Airports\_data}{Аэропорты}{%
+                \#      & airport\_code \\
+                $\ast$  & airport\_name \\     
+                $\ast$  & city \\     
+                $\ast$  & country \\     
+                $\ast$  & coordinates \\     
+                $\ast$  & timezone \\     
+        }};
+        \\[11pt]
+        \pic {table={tickets}{Tickets}{Билеты}{%
+                \#      & ticket\_no \\
+                $\ast$  & book\_ref \\     
+                $\ast$  & passenger\_id \\
+                $\ast$  & passenger\_name \\
+                $\ast$  & outbound \\
+        }}; \&
+        \pic {table={segments}{Segments}{Перелеты}{%
+                \#      & ticket\_no \\
+                \#      & flight\_id \\
+                $\ast$  & fare\_conditions \\
+                $\ast$  & price \\
+        }}; \&
+        \pic {table={flights}{Flights}{Рейсы}{%
+                \#      & flight\_id \\
+                $\ast$  & route\_no \\
+                $\ast$  & status \\
+                $\ast$  & scheduled\_departure \\
+                $\ast$  & scheduled\_arrival \\
+                $\circ$ & actual\_departure \\
+                $\circ$ & actual\_arrival \\
+        }}; \&
+        \pic {table={airplanes-data}{Airplanes\_data}{Самолеты}{%
+                \#      & airplane\_code \\
+                $\ast$  & model \\
+                $\ast$  & range \\
+                $\ast$  & speed \\
+        }};
+        \\
+        \&
+        \pic {table={boarding-passes}{Boarding\_passes}{Посадочные талоны}{%
+                \#      & ticket\_no \\
+                \#      & flight\_id \\
+                $\ast$  & seat\_no \\
+                $\circ$ & boarding\_no \\
+                $\circ$ & boarding\_time \\
+        }}; \& \&
+        \pic {table={seats}{Seats}{Места}{%
+                \#      & airplane\_code \\
+                \#      & seat\_no \\
+                $\ast$  & fare\_conditions \\
+        }}; \\
+      };
+      \draw [one to many] (bookings) -- (tickets);
+      \draw [one to many] (tickets) -- (segments);
+      \draw [one to many] (flights) -- (segments);
+      \draw [optional one to many] (routes) -- (flights);
+      \draw [optional one to one] (segments) -- (boarding-passes);
+      \draw [optional one to many] (airplanes-data) -- (flights.east);
+      \draw [optional one to many] (airplanes-data) -- (seats);
+      \draw [optional one to many] ([yshift=-2ex]airports-data.west) -- ([yshift=-2ex]routes.east);
+      \draw [optional one to many] ([yshift=+2ex]airports-data.west) -- ([yshift=+2ex]routes.east);
+
+      \node (timetable-label) [below = 2ex of flights, align=center, font=\sffamily\footnotesize, outer sep=-1ex] 
+          {\textbf{Timetable}\strut\\ Расписание};
+      \node (airports-label) [above = 2ex of airports-data, align=center, font=\sffamily\footnotesize, outer sep=-1ex] 
+          {\textbf{Airports}};
+      \node (airplanes-label) [above = 2ex of airplanes-data, align=center, font=\sffamily\footnotesize, outer sep=-1ex] 
+          {\textbf{Airplanes}};
+      {[on background layer]
+      \node (timetable) [draw, rounded corners=8, fit=(routes)(flights)(timetable-label), inner sep=10pt, fill=black!10] {};
+      \node (airports) [draw, rounded corners=8, fit=(airports-data)(airports-label), inner sep=10pt, fill=black!10] {};
+      \node (airplanes) [draw, rounded corners=8, fit=(airplanes-data)(airplanes-label), inner sep=10pt, fill=black!10] {};
+      }
+
+      % tiny space on top
+      \node [above = 0pt of airports, minimum height=2pt, inner sep=0, outer sep=0] {};
+    \end{tikzpicture}
+
+\end{document}
+
