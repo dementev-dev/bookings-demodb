@@ -119,25 +119,37 @@
     many to many/.style={
         crow's foot-crow's foot, straight to
     },
-    optional one to many/.style={
+    optional/.style n args={2}{
       decoration={show path construction,
         lineto code={
-          \draw [dash pattern=on 3pt off 3pt,one-] (\tikzinputsegmentfirst) --
+          \draw [dash pattern=on 3pt off 3pt,#1-] (\tikzinputsegmentfirst) -|
              ($(\tikzinputsegmentfirst)!0.5!(\tikzinputsegmentlast)$);
-          \draw [solid,-crow's foot] ($(\tikzinputsegmentfirst)!0.5!(\tikzinputsegmentlast)$)
-            -- (\tikzinputsegmentlast);
+          \draw [solid,-#2] ($(\tikzinputsegmentfirst)!0.5!(\tikzinputsegmentlast)$)
+            |- (\tikzinputsegmentlast);
         }
       }, decorate
     },
-    optional one to one/.style={
+    optional v/.style n args={2}{
       decoration={show path construction,
         lineto code={
-          \draw [dash pattern=on 3pt off 3pt,one-] (\tikzinputsegmentfirst) --
+          \draw [dash pattern=on 3pt off 3pt,#1-] (\tikzinputsegmentfirst) |-
              ($(\tikzinputsegmentfirst)!0.5!(\tikzinputsegmentlast)$);
-          \draw [solid,-one] ($(\tikzinputsegmentfirst)!0.5!(\tikzinputsegmentlast)$)
-            -- (\tikzinputsegmentlast);
+          \draw [solid,-#2] ($(\tikzinputsegmentfirst)!0.5!(\tikzinputsegmentlast)$)
+            -| (\tikzinputsegmentlast);
         }
       }, decorate
+    },
+    optional one to many/.style={
+      optional={{one}{crow's foot}}
+    },
+    optional one to one/.style={
+      optional={{one}{one}}
+    },
+    optional v one to many/.style={
+      optional v={{one}{crow's foot}}
+    },
+    optional v one to one/.style={
+      optional v={{one}{one}}
     }
 }
 
@@ -216,12 +228,12 @@
       \draw [one to many] (bookings) -- (tickets);
       \draw [one to many] (tickets) -- (segments);
       \draw [one to many] (flights) -- (segments);
-      \draw [optional one to many] (routes) -- (flights);
+      \draw [optional v one to many] (routes) -- (flights);
       \draw [optional one to one] (segments) -- (boarding-passes);
-      \draw [optional one to many] (airplanes-data) -- (flights.east);
-      \draw [optional one to many] (airplanes-data) -- (seats);
-      \draw [optional one to many] ([yshift=-2ex]airports-data.west) -- ([yshift=-2ex]routes.east);
-      \draw [optional one to many] ([yshift=+2ex]airports-data.west) -- ([yshift=+2ex]routes.east);
+      \draw [optional one to many] (airplanes-data.west) -- ([yshift=-3ex]routes.east);
+      \draw [optional v one to many] (airplanes-data) -- (seats.north);
+      \draw [optional one to many] (airports-data.west) -- (routes.east);
+      \draw [optional one to many] ([yshift=+3ex]airports-data.west) -- ([yshift=+3ex]routes.east);
 
       \node (timetable-label) [below = 2ex of flights, align=center, font=\sffamily\footnotesize, outer sep=-1ex] 
           {\textbf{Timetable}\strut\\ Расписание};
